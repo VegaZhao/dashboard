@@ -1,0 +1,19 @@
+/* 创建两个相等的列 */
+.column {
+    float: left;
+    width: 50%;
+  }
+   
+  /* 列后清除浮动 */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+   
+  /* 响应式布局 - 小于 600 px 时改为上下布局 */
+  @media screen and (max-width: 600px) {
+    .column {
+      width: 100%;
+    }
+  }

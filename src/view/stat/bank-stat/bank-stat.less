@@ -1,0 +1,36 @@
+/* 创建两个相等的列 */
+.column {
+  float: left;
+  width: 50%;
+}
+ 
+/* 列后清除浮动 */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+ 
+/* 响应式布局 - 小于 600 px 时改为上下布局 */
+@media screen and (max-width: 600px) {
+  .column {
+    width: 100%;
+  }
+}
+
+#sub_title {
+  height: 35px;
+}
+
+#sub_title span {
+  margin-right: 30px;
+  color:#696969;
+  font-size:15px;
+  font-weight: 600;
+}
+
+#sub_title label {
+  color:#696969;
+  font-size:15px;
+  font-weight: 600;
+}
