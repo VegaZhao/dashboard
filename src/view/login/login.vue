@@ -6,8 +6,8 @@
   <div class="login"
        @keydown.enter="handleLogin">
     <div class="login-title">
-      <p style="font-size:45px; font-weight:bold">WorkLog</p>
-      <p style="font-size:xx-large">XXXX系统</p>
+      <p style="font-size:60px; letter-spacing: 10px;">系统风险画像</p>
+      <p style="font-size:xx-large">System Risk Profile</p>
     </div>
     <div class="login-con">
       <Card :bordered="false"

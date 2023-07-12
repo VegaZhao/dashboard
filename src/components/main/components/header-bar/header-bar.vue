@@ -1,6 +1,6 @@
 <template>
   <div class="header-bar">
-    <div class="system-name"> LOGO </div>
+    <div class="system-name"> 系统风险画像 </div>
     <div class="custom-content-con">
       <user :user-avator="userAvator" />
       <fullscreen v-model="isFullscreen"

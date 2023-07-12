@@ -10,12 +10,11 @@
       <row>
         <i-col span="14">
           <label>系统名称：</label>
-          <Select v-model="custValue"
-                  :remote-method="getSecondNodeListByTypeAndName"
-                  :loading="secondNodeLoading"
+          <Select v-model="systemNm"
+                  :remote-method="loadSystemList"
                   filterable
                   style="width: 280px">
-            <Option v-for="item in custList"
+            <Option v-for="item in systemList"
                     :value="item.label"
                     :key="item.label">{{ item.label }}</Option>
           </Select>
@@ -24,16 +23,14 @@
           <Button
             style="float: right"
             type="primary"
-            @click="handleBankStatQuery"
-            >查询</Button
-          >
+            @click="handleProfileStatQuery">查询</Button>
         </i-col>
       </row>
     </Card>
     <!-- 系统概况 -->
     <Card class="overview" style="margin-top: 5px">
       <div class="title">
-        <p>{{systemName}}</p>
+        <p>{{ systemTitle }}</p>
       </div>
       <div class="content">
         <div class="left">
@@ -63,17 +60,19 @@
     <!-- 内容面板 -->
     <Card style="margin-top: 5px">
       <Tabs value="nm_vul">
-        
+
         <!-- 安全事件tab -->
         <TabPane label="安全事件"
-                 name="nm_event">
-        </TabPane>
+                 name="nm_event"/>
         <!-- 历史漏洞tab -->
         <TabPane label="历史漏洞"
                  name="nm_vul">
           <!-- 表格 -->
           <div>
             <tables
+              :searchcolumns="searchcolumns"
+              :columns="columns_v"
+              v-model="tableData_v"
               toolbar-enable
               editable
               border
@@ -81,12 +80,8 @@
               operation-enable
               stripe
               toolbar-place="top"
-              :searchcolumns="searchcolumns"
               @on-clear="handleClear"
-              @on-search="handleSearch"
-              :columns="columns_v"
-              v-model="tableData_v"
-            >
+              @on-search="handleSearch">
               <!-- 换页 -->
               <div slot="footer" style="float: right; margin-right: 10px">
                 <Page
@@ -98,8 +93,7 @@
                   show-sizer
                   show-total
                   @on-change="handlePageChange"
-                  @on-page-size-change="handlePageSizeChange"
-                />
+                  @on-page-size-change="handlePageSizeChange"/>
               </div>
             </tables>
           </div>
@@ -111,132 +105,108 @@
 </template>
 
 <script>
-import { ChartLine } from "_c/charts";
-import { getCustomerLineData } from "@/api/customer-expire";
-import { getCustomerTable } from "@/api/customer-expire";
-import { getCustomerTableData } from "@/api/customer-expire";
-import Tables from "_c/tables";
+
+import Tables from '_c/tables'
+import { getSystemList } from '@/api/profile-stat'
 
 export default {
-  name: "CustExp",
+  name: 'Profile',
   components: {
-    ChartLine,
-    Tables,
+    Tables
   },
   data() {
     return {
-      systemName: '个人网银系统',
+      systemList: [],
+      systemNm: '',
+      systemTitle: '个人网银系统',
       columns_v: [
         {
-          title: "序号",
-          key: "id",
+          title: '序号',
+          key: 'id'
         },
         {
-          title: "漏洞名称",
-          key: "title",
+          title: '漏洞名称',
+          key: 'title'
         },
         {
-          title: "漏洞描述",
-          key: "description",
+          title: '漏洞描述',
+          key: 'description'
         },
         {
-          title: "漏洞等级",
-          key: "severity",
+          title: '漏洞等级',
+          key: 'severity'
         },
         {
-          title: "漏洞来源",
-          key: "disc_resource",
+          title: '漏洞来源',
+          key: 'disc_resource'
         },
         {
-          title: "漏洞分类",
-          key: "category",
+          title: '漏洞分类',
+          key: 'category'
         },
         {
-          title: "业务功能场景",
-          key: "func_scene",
+          title: '业务功能场景',
+          key: 'func_scene'
         },
         {
-          title: "漏洞发现时间",
-          key: "disc_date",
+          title: '漏洞发现时间',
+          key: 'disc_date'
         },
         {
-          title: "修复状态",
-          key: "repaire_status",
+          title: '修复状态',
+          key: 'repaire_status'
         },
         {
-          title: "修复日期",
-          key: "repaired_date",
+          title: '修复日期',
+          key: 'repaired_date'
         },
         {
-          title: "漏洞发现人",
-          key: "discoverer",
+          title: '漏洞发现人',
+          key: 'discoverer'
         },
         {
-          title: "备注",
-          key: "remarks",
-        },
+          title: '备注',
+          key: 'remarks'
+        }
       ],
       tableData_v: [1, '电子签章管理系统', '2022众测（第一轮次）', '未授权访问', '其他', '电子签章管理系统存在springboot未授权漏洞导致密钥泄露', 'springboot路径下存在未授权访问，能够下载其内存文件导致密钥泄露', '中危', '2022-11-14', '已修复', null, '安全厂商', null],
       currentPage: 1,
       pageSize: 10,
       tableMoney: 0,
-      searchcolumns: ["title", "category"],
-      searchKey: "",
-      searchValue: "",
-    };
+      searchcolumns: ['title', 'category'],
+      searchKey: '',
+      searchValue: ''
+    }
   },
   mounted() {
-    this.refreshTable();
+    this.loadSystemList()
   },
   methods: {
-    handleBankStatQuery() {
-      if (this.dateBegin > this.dateEnd) {
+    loadSystemList() {
+      getSystemList().then((res) => {
+        console.log(res)
+        this.systemList = []
+        var data = res.data
+        for (var i = 0; i < data.length; i++) {
+          this.systemList.push({
+            value: data[i].syscode,
+            label: data[i].sysname
+          })
+        }
+      })
+    },
+    handleProfileStatQuery() {
+      console.log('hello')
+      if (this.systemNm === '') {
         this.$Message.warning({
-          content: "开始日期不能大于结束日期!",
+          content: '系统为必选项!',
           duration: 10,
-          closable: true,
-        });
-        return;
+          closable: true
+        })
+        return
       }
-      this.refreshTable();
-    },
-    refreshTable() {
-      getCustomerTable(
-        this.dateBegin.replace(/-/g, ""),
-        this.dateEnd.replace(/-/g, ""),
-        this.dueDate,
-        this.searchKey,
-        this.searchValue,
-        this.currentPage,
-        this.pageSize
-      ).then((res) => {
-        this.tableData_v = [1, '电子签章管理系统', '2022众测（第一轮次）', '未授权访问', '其他', '电子签章管理系统存在springboot未授权漏洞导致密钥泄露', 'springboot路径下存在未授权访问，能够下载其内存文件导致密钥泄露', '中危', '2022-11-14', '已修复', null, '安全厂商', null];
-        this.tableData = [];
-        var data = res.data.records;
-      });
-    },
-    handlePageChange(pageNum) {
-      this.currentPage = pageNum;
-      this.refreshTable();
-      this.currentPage = 1; //表更新后重置当前页
-    },
-    handlePageSizeChange(pageSize) {
-      this.pageSize = pageSize;
-      this.refreshTable();
-    },
-    handleClear(val) {
-      if (val === "") {
-        (this.searchKey = ""), (this.searchValue = ""), this.refreshTable();
-      }
-    },
-    handleSearch(val) {
-      (this.searchKey = val.searchKey),
-        (this.searchValue = val.searchValue),
-        (this.currentPage = 1),
-        this.refreshTable();
-      // console.log(this.searchKey)
-      // console.log(this.searchValue)
-    },
-  },
-};
+      this.systemTitle = this.systemNm
+    }
+  }
+}
 </script>

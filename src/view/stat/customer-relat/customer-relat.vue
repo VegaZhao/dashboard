@@ -166,7 +166,7 @@ export default {
     var now = new Date()
     var defaultMon = 'YYYYMM'
     var currYear = now.getFullYear()
-    var defaultBegin = currYear+'01'
+    var defaultBegin = currYear + '01'
     var currMonth = now.getMonth()
     defaultMon = defaultMon.replace('YYYY', currYear)
     defaultMon = defaultMon.replace(
@@ -174,9 +174,9 @@ export default {
       currMonth > 9 ? currMonth : '0' + currMonth
     )
 
-    if(currMonth < 1) {
+    if (currMonth < 1) {
       defaultBegin = currYear - 1 + '01'
-      defaultMon = currYear - 1 + '12' 
+      defaultMon = currYear - 1 + '12'
     }
     this.monthBegin = defaultBegin
     this.monthEnd = defaultMon
@@ -199,7 +199,6 @@ export default {
         console.log(res)
         this.custList = []
         var data = res.data
-        // this.custValue = "";
         for (var i = 0; i < data.length; i++) {
           this.custList.push({
             value: data[i].CUSTCODE,
@@ -209,22 +208,7 @@ export default {
         this.secondNodeLoading = false
       })
     },
-    // getCustList() {
-    //   // 以下函数来自于controller，用于调用后台的服务
-    //   getCustList(this.monthBegin, this.monthEnd, '').then((res) => {
-    //     if (res) {
-    //       this.custList = []
-    //       var data = res.data
-    //       this.custValue = ''
-    //       for (var i = 0; i < data.length; i++) {
-    //         this.custList.push({
-    //           value: data[i].CUSTCODE,
-    //           label: data[i].CUSTNAME
-    //         })
-    //       }
-    //     }
-    //   })
-    // },
+
     handlePageChange(pageNum) {
       this.currentPage = pageNum
       this.handleCustRelatQuery()
@@ -334,11 +318,11 @@ export default {
         }
       })
     },
-    rowClassName (row, index) {
-                if (index === 0) {
-                    return 'demo-table-info-row';
-                } 
-                return '';
+    rowClassName(row, index) {
+      if (index === 0) {
+        return 'demo-table-info-row'
+      }
+      return ''
     }
   }
 }
