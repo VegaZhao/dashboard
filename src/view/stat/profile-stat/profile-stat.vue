@@ -10,7 +10,7 @@
       <row>
         <i-col span="14">
           <label>系统名称：</label>
-          <Select v-model="systemNm"
+          <Select v-model="systemName"
                   :remote-method="loadSystemList"
                   filterable
                   style="width: 280px">
@@ -71,8 +71,8 @@
           <div>
             <tables
               :searchcolumns="searchcolumns"
-              :columns="columns_v"
-              v-model="tableData_v"
+              :columns="columns"
+              v-model="vulntableData"
               toolbar-enable
               editable
               border
@@ -108,6 +108,7 @@
 
 import Tables from '_c/tables'
 import { getSystemList } from '@/api/profile-stat'
+import { getVulnerabilityTable } from '@/api/profile-stat'
 
 export default {
   name: 'Profile',
@@ -117,9 +118,9 @@ export default {
   data() {
     return {
       systemList: [],
-      systemNm: '',
-      systemTitle: '个人网银系统',
-      columns_v: [
+      systemName: '',
+      systemTitle: '',
+      columns: [
         {
           title: '序号',
           key: 'id'
@@ -138,7 +139,7 @@ export default {
         },
         {
           title: '漏洞来源',
-          key: 'disc_resource'
+          key: 'discResource'
         },
         {
           title: '漏洞分类',
@@ -146,19 +147,19 @@ export default {
         },
         {
           title: '业务功能场景',
-          key: 'func_scene'
+          key: 'funcScene'
         },
         {
           title: '漏洞发现时间',
-          key: 'disc_date'
+          key: 'discDate'
         },
         {
           title: '修复状态',
-          key: 'repaire_status'
+          key: 'repaireStatus'
         },
         {
           title: '修复日期',
-          key: 'repaired_date'
+          key: 'repairedDate'
         },
         {
           title: '漏洞发现人',
@@ -169,22 +170,24 @@ export default {
           key: 'remarks'
         }
       ],
-      tableData_v: [1, '电子签章管理系统', '2022众测（第一轮次）', '未授权访问', '其他', '电子签章管理系统存在springboot未授权漏洞导致密钥泄露', 'springboot路径下存在未授权访问，能够下载其内存文件导致密钥泄露', '中危', '2022-11-14', '已修复', null, '安全厂商', null],
+      vulntableData: [],
       currentPage: 1,
       pageSize: 10,
       tableMoney: 0,
-      searchcolumns: ['title', 'category'],
+      searchcolumns: ['category', 'title'],
       searchKey: '',
       searchValue: ''
     }
   },
   mounted() {
     this.loadSystemList()
+    this.systemName = '个人网银系统'
+    this.systemTitle = this.systemName
+    this.refreshVulnTable()
   },
   methods: {
     loadSystemList() {
       getSystemList().then((res) => {
-        console.log(res)
         this.systemList = []
         var data = res.data
         for (var i = 0; i < data.length; i++) {
@@ -196,8 +199,7 @@ export default {
       })
     },
     handleProfileStatQuery() {
-      console.log('hello')
-      if (this.systemNm === '') {
+      if (this.systemName === '') {
         this.$Message.warning({
           content: '系统为必选项!',
           duration: 10,
@@ -205,7 +207,58 @@ export default {
         })
         return
       }
-      this.systemTitle = this.systemNm
+      this.systemTitle = this.systemName
+      this.refreshVulnTable()
+    },
+    refreshVulnTable() {
+      getVulnerabilityTable(
+        this.systemName,
+        this.searchKey,
+        this.searchValue,
+        this.currentPage,
+        this.pageSize
+      ).then((res) => {
+        this.vulntableData = []
+        var data = res.data.records
+        this.totalNum = res.data.total
+        for (var i = 0; i < data.length; i++) {
+          this.vulntableData.push({
+            id: data[i].rn + this.pageSize * (this.currentPage - 1),
+            title: data[i].title,
+            description: data[i].description,
+            severity: data[i].severity,
+            discResource: data[i].discResource,
+			      category: data[i].category,
+            funcScene: data[i].funcScene,
+            disc_date: data[i].discDate,
+            repaireStatus: data[i].repaireStatus,
+            repairedDate: data[i].repairedDate,
+			      discoverer: data[i].discoverer,
+            remarks: data[i].remarks
+          })
+        }
+      })
+    },
+    handlePageChange(pageNum) {
+      this.currentPage = pageNum
+      this.refreshVulnTable()
+    },
+    handlePageSizeChange(pageSize) {
+      this.pageSize = pageSize
+      this.refreshVulnTable()
+    },
+    handleClear(val) {
+      if (val === '') {
+        (this.searchKey = ''), (this.searchValue = ''), this.refreshVulnTable()
+      }
+    },
+    handleSearch(val) {
+      (this.searchKey = val.searchKey),
+      (this.searchValue = val.searchValue),
+      (this.currentPage = 1),
+      this.refreshVulnTable()
+      // console.log(this.searchKey);
+      // console.log(this.searchValue);
     }
   }
 }
