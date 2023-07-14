@@ -60,10 +60,12 @@
     <!-- 内容面板 -->
     <Card style="margin-top: 5px">
       <Tabs value="nm_vul">
-
         <!-- 安全事件tab -->
         <TabPane label="安全事件"
-                 name="nm_event"/>
+                 name="nm_event">
+            
+        </TabPane>
+
         <!-- 历史漏洞tab -->
         <TabPane label="历史漏洞"
                  name="nm_vul">
@@ -75,13 +77,13 @@
               v-model="vulntableData"
               toolbar-enable
               editable
-              border
               searchable
               operation-enable
               stripe
               toolbar-place="top"
               @on-clear="handleClear"
-              @on-search="handleSearch">
+              @on-search="handleSearch"
+              @on-row-dblclick="onRowClick">
               <!-- 换页 -->
               <div slot="footer" style="float: right; margin-right: 10px">
                 <Page
@@ -120,22 +122,27 @@ export default {
       systemList: [],
       systemName: '',
       systemTitle: '',
+      totalNum: 0,
       columns: [
         {
           title: '序号',
-          key: 'id'
+          key: 'id',
+          width: 80
         },
         {
           title: '漏洞名称',
-          key: 'title'
+          key: 'title',
+          width: 300
         },
         {
           title: '漏洞描述',
-          key: 'description'
+          key: 'description',
+          width: 300
         },
         {
           title: '漏洞等级',
-          key: 'severity'
+          key: 'severity',
+          width: 100
         },
         {
           title: '漏洞来源',
@@ -155,7 +162,8 @@ export default {
         },
         {
           title: '修复状态',
-          key: 'repaireStatus'
+          key: 'repaireStatus',
+          width: 100
         },
         {
           title: '修复日期',
@@ -180,16 +188,16 @@ export default {
     }
   },
   mounted() {
-    this.loadSystemList()
-    this.systemName = '个人网银系统'
-    this.systemTitle = this.systemName
-    this.refreshVulnTable()
+    this.loadSystemList();
+    this.systemName = '个人网银系统';
+    this.systemTitle = this.systemName;
+    this.refreshVulnTable();
   },
   methods: {
     loadSystemList() {
       getSystemList().then((res) => {
-        this.systemList = []
-        var data = res.data
+        this.systemList = [];
+        var data = res.data;
         for (var i = 0; i < data.length; i++) {
           this.systemList.push({
             value: data[i].syscode,
@@ -204,11 +212,12 @@ export default {
           content: '系统为必选项!',
           duration: 10,
           closable: true
-        })
-        return
+        });
+        return;
       }
-      this.systemTitle = this.systemName
-      this.refreshVulnTable()
+      this.systemTitle = this.systemName;
+      this.currentPage = 1;
+      this.refreshVulnTable();
     },
     refreshVulnTable() {
       getVulnerabilityTable(
@@ -218,9 +227,9 @@ export default {
         this.currentPage,
         this.pageSize
       ).then((res) => {
-        this.vulntableData = []
-        var data = res.data.records
-        this.totalNum = res.data.total
+        this.vulntableData = [];
+        var data = res.data.records;
+        this.totalNum = res.data.total;
         for (var i = 0; i < data.length; i++) {
           this.vulntableData.push({
             id: data[i].rn + this.pageSize * (this.currentPage - 1),
@@ -230,36 +239,43 @@ export default {
             discResource: data[i].discResource,
 			      category: data[i].category,
             funcScene: data[i].funcScene,
-            disc_date: data[i].discDate,
+            discDate: data[i].discDate,
             repaireStatus: data[i].repaireStatus,
             repairedDate: data[i].repairedDate,
 			      discoverer: data[i].discoverer,
             remarks: data[i].remarks
-          })
+          });
         }
       })
     },
     handlePageChange(pageNum) {
-      this.currentPage = pageNum
-      this.refreshVulnTable()
+      this.currentPage = pageNum;
+      this.refreshVulnTable();
     },
     handlePageSizeChange(pageSize) {
-      this.pageSize = pageSize
-      this.refreshVulnTable()
+      this.pageSize = pageSize;
+      this.refreshVulnTable();
     },
     handleClear(val) {
       if (val === '') {
-        (this.searchKey = ''), (this.searchValue = ''), this.refreshVulnTable()
+        this.searchKey = '';
+        this.searchValue = '';
+        this.refreshVulnTable();
       }
     },
     handleSearch(val) {
-      (this.searchKey = val.searchKey),
-      (this.searchValue = val.searchValue),
-      (this.currentPage = 1),
-      this.refreshVulnTable()
+      this.searchKey = val.searchKey;
+      this.searchValue = val.searchValue;
+      this.currentPage = 1;
+      this.refreshVulnTable();
       // console.log(this.searchKey);
       // console.log(this.searchValue);
-    }
+    },
+    onRowClick(row) {
+      // 执行页面跳转
+      const url = 'http://114.55.4.235/#commands';
+      window.open(url);
+    },
   }
 }
 </script>

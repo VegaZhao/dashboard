@@ -70,44 +70,42 @@ const homeRouterMap = [{
   path: '/home',
   name: 'home',
   meta: {
-    title: '工作日志'
+    title: '风险画像'
   },
   component: Main,
   children: [{
     path: '/home_stat',
     name: 'home_stat',
     meta: {
-      title: '工作日志',
+      title: '风险画像',
       icon: 'ios-home',
       access: 'stat:home_stat'
-    },
-    component: () => import('@/view/stat/bank-stat/bank-stat.vue')
-
-  }]
-}]
-
-/**
- * 贷款客户
- */
-const profileRouterMap = [{
-  path: '/profile',
-  name: 'profile',
-  meta: {
-    title: '风险画像'
-  },
-  component: Main,
-  children: [{
-    path: '/profile_stat',
-    name: 'profile_stat',
-    meta: {
-      title: '风险画像',
-      icon: 'ios-water',
-      access: 'stat:profile_stat'
     },
     component: () => import('@/view/stat/profile-stat/profile-stat.vue')
 
   }]
 }]
+
+
+// const profileRouterMap = [{
+//   path: '/profile',
+//   name: 'profile',
+//   meta: {
+//     title: '风险画像'
+//   },
+//   component: Main,
+//   children: [{
+//     path: '/profile_stat',
+//     name: 'profile_stat',
+//     meta: {
+//       title: '风险画像',
+//       icon: 'ios-water',
+//       access: 'stat:profile_stat'
+//     },
+//     component: () => import('@/view/stat/profile-stat/profile-stat.vue')
+
+//   }]
+// }]
 /**
  * 贷款客户
  */
@@ -212,7 +210,7 @@ const systemRouterMap = [{
 export const routers = [
   ...constantRouterMap,
   ...homeRouterMap,
-  ...profileRouterMap,
+  // ...profileRouterMap,
   ...customerRouterMap,
   ...systemRouterMap
 ]
